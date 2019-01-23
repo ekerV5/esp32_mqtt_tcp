@@ -20,6 +20,8 @@
 #include "esp_log.h"
 #include "mqtt_client.h"
 
+#define WIFI_SSID_PASSWORD_FROM_STDIN    1
+
 static const char *TAG = "MQTT_EXAMPLE";
 
 static EventGroupHandle_t wifi_event_group;
@@ -110,9 +112,49 @@ static void wifi_init(void)
             .password = CONFIG_WIFI_PASSWORD,
         },
     };
+
+#if WIFI_SSID_PASSWORD_FROM_STDIN	
+	char line[128];
+	int count = 0;
+	printf("\nPlease enter wifi ssid\n");
+	while (count < 128) {
+		int c = fgetc(stdin);
+		if (c == '\n') {
+			line[count] = '\0';
+			printf("\n");
+			break;
+		} else if (c > 0 && c < 127) {
+			line[count] = c;
+			++count;
+			printf("%c", c);
+		}
+		vTaskDelay(10 / portTICK_PERIOD_MS);
+	}
+	memcpy(wifi_config.sta.ssid, line, count+1);
+	printf("Wifi ssid: %s\n", wifi_config.sta.ssid);
+	
+	count = 0;
+	printf("\nPlease enter wifi password\n");
+	while (count < 128) {
+		int c = fgetc(stdin);
+		if (c == '\n') {
+			line[count] = '\0';
+			printf("\n");
+			break;
+		} else if (c > 0 && c < 127) {
+			line[count] = c;
+			++count;
+			printf("%c", c);
+		}
+		vTaskDelay(10 / portTICK_PERIOD_MS);
+	}
+	memcpy(wifi_config.sta.password, line, count+1);
+	printf("Wifi password: %s\n\n", wifi_config.sta.password);
+#endif
+
     ESP_ERROR_CHECK(esp_wifi_set_mode(WIFI_MODE_STA));
     ESP_ERROR_CHECK(esp_wifi_set_config(ESP_IF_WIFI_STA, &wifi_config));
-    ESP_LOGI(TAG, "start the WIFI SSID:[%s]", CONFIG_WIFI_SSID);
+    ESP_LOGI(TAG, "start the WIFI SSID:[%s]", wifi_config.sta.ssid);
     ESP_ERROR_CHECK(esp_wifi_start());
     ESP_LOGI(TAG, "Waiting for wifi");
     xEventGroupWaitBits(wifi_event_group, CONNECTED_BIT, false, true, portMAX_DELAY);
