@@ -121,7 +121,11 @@ static void wifi_init(void)
 static void mqtt_app_start(void)
 {
     esp_mqtt_client_config_t mqtt_cfg = {
-        .uri = CONFIG_BROKER_URL,
+        .uri = "mqtt://a1CNfFYXMJu.iot-as-mqtt.cn-shanghai.aliyuncs.com",
+		.port = 1883,
+		.client_id = "1234567890|securemode=3,signmethod=hmacsha1,timestamp=789|",
+		.username = "GNUm2MKbwNmSkXS6nQ0K&a1CNfFYXMJu",
+		.password = "28b8f83b086fa02cb54243a04d18486314ae357e",
         .event_handle = mqtt_event_handler,
         // .user_context = (void *)your_context
     };
