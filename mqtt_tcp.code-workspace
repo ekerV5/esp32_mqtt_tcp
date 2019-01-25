@@ -1,0 +1,19 @@
+{
+	"folders": [
+		{
+			"path": "."
+		}
+	],
+	"settings": {
+		"files.associations": {
+			"esp_wifi.h": "c",
+			"esp_event.h": "c",
+			"esp_event_legacy.h": "c",
+			"tcpip_adapter.h": "c",
+			"ip_addr.h": "c",
+			"opt.h": "c",
+			"debug.h": "c",
+			"arch.h": "c"
+		}
+	}
+}
