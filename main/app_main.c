@@ -23,9 +23,7 @@
 #include "user_cfg.h"
 #include "m_data.h"
 
-#define WIFI_SSID_PASSWORD_FROM_STDIN    1
-
-static const char *TAG = "MQTT_EXAMPLE";
+static const char *TAG = "MQTT_TCP";
 
 static EventGroupHandle_t wifi_event_group;
 const static int CONNECTED_BIT = BIT0;
@@ -173,11 +171,11 @@ static void wifi_init(void)
 static void mqtt_app_start(void)
 {
     esp_mqtt_client_config_t mqtt_cfg = {
-        .uri = "mqtt://a1CNfFYXMJu.iot-as-mqtt.cn-shanghai.aliyuncs.com",
-		.port = 1883,
-		.client_id = "1234567890|securemode=3,signmethod=hmacsha1,timestamp=789|",
-		.username = "GNUm2MKbwNmSkXS6nQ0K&a1CNfFYXMJu",
-		.password = "28b8f83b086fa02cb54243a04d18486314ae357e",
+        .uri = MQTT_URI,
+		.port = MQTT_PORT,
+		.client_id = MQTT_CLIENT_ID,
+		.username = MQTT_USER_NAME,
+		.password = MQTT_USER_PWD,
         .event_handle = mqtt_event_handler,
         // .user_context = (void *)your_context
     };
