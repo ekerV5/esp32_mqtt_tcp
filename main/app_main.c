@@ -21,41 +21,57 @@
 #include "mqtt_client.h"
 
 #include "user_cfg.h"
-#include "m_data.h"
 
 static const char *TAG = "MQTT_TCP";
 
 static EventGroupHandle_t wifi_event_group;
 const static int CONNECTED_BIT = BIT0;
+static esp_mqtt_client_handle_t client;
+static bool mqtt_connected;
 
+
+/**
+ * 发布
+ */
+void mqtt_publish(char *topic, char *pdata)
+{
+    if (!mqtt_connected) {
+        ESP_LOGD(TAG, "MQTT is not connected.");
+        return;
+    }
+    
+    int msg_id = esp_mqtt_client_publish(client, topic, pdata, strlen(pdata), 0, 0);
+    ESP_LOGI(TAG, "sent publish successful, msg_id=%d", msg_id);
+}
+
+/**
+ * 订阅
+ */
+void mqtt_subscribe(char *topic)
+{
+    int msg_id = esp_mqtt_client_subscribe(client, topic, 0);
+    ESP_LOGI(TAG, "sent subscribe successful, msg_id=%d", msg_id);
+}
 
 static esp_err_t mqtt_event_handler(esp_mqtt_event_handle_t event)
 {
-    esp_mqtt_client_handle_t client = event->client;
-    int msg_id;
+    client = event->client;
     // your_context_t *context = event->context;
     switch (event->event_id) {
         case MQTT_EVENT_CONNECTED:
             ESP_LOGI(TAG, "MQTT_EVENT_CONNECTED");
-
-            data_json_init();
-            data_json_add_number("LightSwitch", 1);
-            char *data = data_json_parse_to_string();
-            msg_id = esp_mqtt_client_publish(client, TOPIC_PROPERTY_POST, data, strlen(data), 0, 0);
-            ESP_LOGI(TAG, "sent publish successful, msg_id=%d", msg_id);
-
-            msg_id = esp_mqtt_client_subscribe(client, TOPIC_PROPERTY_SET, 0);
-            ESP_LOGI(TAG, "sent subscribe successful, msg_id=%d", msg_id);
+            mqtt_connected = true;
+            led_state_update(0);
+            mqtt_subscribe(TOPIC_PROPERTY_SET);
             break;
 
         case MQTT_EVENT_DISCONNECTED:
             ESP_LOGI(TAG, "MQTT_EVENT_DISCONNECTED");
+            mqtt_connected = false;
             break;
 
         case MQTT_EVENT_SUBSCRIBED:
             ESP_LOGI(TAG, "MQTT_EVENT_SUBSCRIBED, msg_id=%d", event->msg_id);
-            msg_id = esp_mqtt_client_publish(client, "/topic/qos0", "data", 0, 0, 0);
-            ESP_LOGI(TAG, "sent publish successful, msg_id=%d", msg_id);
             break;
 
         case MQTT_EVENT_UNSUBSCRIBED:
@@ -68,8 +84,8 @@ static esp_err_t mqtt_event_handler(esp_mqtt_event_handle_t event)
 
         case MQTT_EVENT_DATA:
             ESP_LOGI(TAG, "MQTT_EVENT_DATA");
-            printf("TOPIC=%.*s\r\n", event->topic_len, event->topic);
-            printf("DATA=%.*s\r\n", event->data_len, event->data);
+            printf("TOPIC: %.*s\r\n", event->topic_len, event->topic);
+            printf("DATA: %.*s\r\n", event->data_len, event->data);
             data_parse(event->data);
             break;
 
@@ -222,6 +238,8 @@ void app_main()
     esp_log_level_set("TRANSPORT", ESP_LOG_VERBOSE);
     esp_log_level_set("OUTBOX", ESP_LOG_VERBOSE);
 
+    led_init();
+    
     nvs_flash_init();
     wifi_init();
     mqtt_app_start();

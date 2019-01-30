@@ -1,10 +1,8 @@
-#include <stdio.h>
-#include "cJSON.h"
-#include "m_data.h"
+#include "user_cfg.h"
 
 cJSON *json, *param;
 
-void data_json_init(void)
+static void data_json_init(void)
 {
     json = cJSON_CreateObject();
     cJSON_AddStringToObject(json, "id", "123");
@@ -14,22 +12,22 @@ void data_json_init(void)
     param = cJSON_AddObjectToObject(json, "params");
 }
 
-void data_json_add_bool(const char *key, cJSON_bool boolean)
+static void data_json_add_bool(const char *key, cJSON_bool boolean)
 {
     cJSON_AddBoolToObject(param, key, boolean);
 }
 
-void data_json_add_number(const char *key, double number)
+static void data_json_add_number(const char *key, double number)
 {
     cJSON_AddNumberToObject(param, key, number);
 }
 
-void data_json_add_string(const char *key, char *string)
+static void data_json_add_string(const char *key, char *string)
 {
     cJSON_AddStringToObject(param, key, string);
 }
 
-char *data_json_parse_to_string(void)
+static char *data_json_parse_to_string(void)
 {
     char *json_str = cJSON_Print(json);
     printf("%s\n", json_str);
@@ -39,6 +37,19 @@ char *data_json_parse_to_string(void)
     return json_str;
 }
 
+/**
+ * 更新LED状态到云端
+ */
+void led_state_update(bool boolean)
+{
+    data_json_init();
+    data_json_add_number("LightSwitch", boolean);
+    mqtt_publish(TOPIC_PROPERTY_POST, data_json_parse_to_string());
+}
+
+/**
+ * 解析从服务器接收的json
+ */
 void data_parse(char *pdata)
 {
     cJSON *json = cJSON_Parse(pdata);
@@ -55,6 +66,16 @@ void data_parse(char *pdata)
 
     cJSON *json_data = cJSON_GetObjectItem(json_params, "LightSwitch");
     if (json_data != NULL) {
-        printf("Light %s\n", json_data->valueint ? "on" : "off");
+        if (json_data->valueint) {
+            printf("Light on.\n");
+            led_r_on();
+            led_state_update(1);
+        }
+        else
+        {
+            printf("Light off.\n");
+            led_r_off();
+            led_state_update(0);
+        }
     }
 }

@@ -1,6 +1,16 @@
 #ifndef __USER_CFG_H__
 #define __USER_CFG_H__
 
+#include <stdbool.h>
+#include <stdint.h>
+#include <stdio.h>
+#include <string.h>
+
+#include "cJSON.h"
+#include "m_data.h"
+#include "m_led.h"
+#include "mqtt_client.h"
+
 #define MQTT_URI                         "mqtt://a1CNfFYXMJu.iot-as-mqtt.cn-shanghai.aliyuncs.com"
 #define MQTT_PORT                        1883
 #define MQTT_CLIENT_ID                   "1234567890|securemode=3,signmethod=hmacsha1,timestamp=789|"
@@ -14,5 +24,8 @@
 #define TOPIC_USER_GET                   "/a1CNfFYXMJu/GNUm2MKbwNmSkXS6nQ0K/user/get"
 
 #define WIFI_SSID_PASSWORD_FROM_STDIN    1
+
+void mqtt_publish(char *topic, char *pdata);
+void mqtt_subscribe(char *topic);
 
 #endif
