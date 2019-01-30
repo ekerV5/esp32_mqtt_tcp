@@ -5,9 +5,11 @@
 #include <stdint.h>
 #include <stdio.h>
 #include <string.h>
+#include <unistd.h>
 
 #include "cJSON.h"
 #include "m_data.h"
+#include "m_dht11.h"
 #include "m_led.h"
 #include "mqtt_client.h"
 

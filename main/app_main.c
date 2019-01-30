@@ -225,6 +225,16 @@ static void mqtt_app_start(void)
     esp_mqtt_client_start(client);
 }
 
+static void dht11_task(void *pvParameter)
+{
+    uint8_t humidity, temperature;
+    while(1){
+        dht11_get_data(&humidity, &temperature);
+        humidity_and_temperature_post(humidity, temperature);
+        sleep(5);
+    }
+}
+
 void app_main()
 {
     ESP_LOGI(TAG, "[APP] Startup..");
@@ -243,4 +253,6 @@ void app_main()
     nvs_flash_init();
     wifi_init();
     mqtt_app_start();
+
+    xTaskCreate(&dht11_task, "dht11_task", 2048, NULL, 5, NULL);
 }

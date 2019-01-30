@@ -48,6 +48,17 @@ void led_state_update(bool boolean)
 }
 
 /**
+ * 上报湿度和温度值到云端
+ */
+void humidity_and_temperature_post(uint8_t humidity, uint8_t temperature)
+{
+    data_json_init();
+    data_json_add_number("EnvironmentHumidity", humidity);
+    data_json_add_number("EnvironmentTemperature", temperature);
+    mqtt_publish(TOPIC_PROPERTY_POST, data_json_parse_to_string());
+}
+
+/**
  * 解析从服务器接收的json
  */
 void data_parse(char *pdata)
