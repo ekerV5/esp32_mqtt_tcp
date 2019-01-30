@@ -25,7 +25,7 @@
 #define TOPIC_USER_UPDATE_ERROR          "/a1CNfFYXMJu/GNUm2MKbwNmSkXS6nQ0K/user/update/error"
 #define TOPIC_USER_GET                   "/a1CNfFYXMJu/GNUm2MKbwNmSkXS6nQ0K/user/get"
 
-#define WIFI_SSID_PASSWORD_FROM_STDIN    1
+#define WIFI_SSID_PASSWORD_FROM_STDIN    0
 
 void mqtt_publish(char *topic, char *pdata);
 void mqtt_subscribe(char *topic);
