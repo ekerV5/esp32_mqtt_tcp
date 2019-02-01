@@ -1,61 +1,36 @@
-# ESP-MQTT sample application
-(See the README.md file in the upper level 'examples' directory for more information about examples.)
+# ESP32_MQTT_TCP应用
+## 介绍
+硬件：
+```
+ESP32-PICO-KIT V4迷你板
+RGB 3色LED
+DHT11温湿度模块
+```
+软件：
+```
+ESP-IDF
+```
+此应用实现了通过MQTT的TCP方式连接到阿里云，通过DHT11模块周期性检测温度和湿度并上报到云端，通过订阅的云端发布的消息来判断是否打开LED。
 
-This example connects to the broker URI selected using `make menuconfig` (using mqtt tcp transport) and as a demonstration subscribes/unsubscribes and send a message on certain topic.
-Note: If the URI equals `FROM_STDIN` then the broker address is read from stdin upon application startup (used for testing)
+手机端采用阿里云的移动应用开发功能简单的做了一个安卓APP。
 
-It uses ESP-MQTT library which implements mqtt client to connect to mqtt broker.
-
-## How to use example
-
-### Hardware Required
-
-This example can be executed on any ESP32 board, the only required interface is WiFi and connection to internet.
-
-### Configure the project
-
+## 使用
+### 1.配置
 ```
 make menuconfig
 ```
+设置串口号
 
-* Set serial port under Serial Flasher Options.
+设置Wifi ssid和密码
 
-* Set ssid and password for the board to connect to AP.
+如果想在运行的时候从终端手动输入ssid和密码，可以把头文件“user_cfg.h”中宏“WIFI_SSID_PASSWORD_FROM_STDIN”的值置1。
+### 2.修改代码
+根据阿里云设备三元组信息生成MQTT连接信息，参考阿里官方文档https://help.aliyun.com/document_detail/73742.html?spm=a2c4g.11174283.6.650.528816687sa9MQ
 
-### Build and Flash
+用生成的MQTT连接信息及发布订阅等的主题替换user_cfg.h头文件中的宏
+![img](https://github.com/ekerV5/resources/blob/master/user_cfg.jpg)
 
-Build the project and flash it to the board, then run monitor tool to view serial output:
-
-```
-make -j4 flash monitor
-```
-
-(To exit the serial monitor, type ``Ctrl-]``.)
-
-See the Getting Started Guide for full steps to configure and use ESP-IDF to build projects.
-
-## Example Output
-
-```
-I (3714) event: sta ip: 192.168.0.139, mask: 255.255.255.0, gw: 192.168.0.2
-I (3714) system_api: Base MAC address is not set, read default base MAC address from BLK0 of EFUSE
-I (3964) MQTT_CLIENT: Sending MQTT CONNECT message, type: 1, id: 0000
-I (4164) MQTT_EXAMPLE: MQTT_EVENT_CONNECTED
-I (4174) MQTT_EXAMPLE: sent publish successful, msg_id=41464
-I (4174) MQTT_EXAMPLE: sent subscribe successful, msg_id=17886
-I (4174) MQTT_EXAMPLE: sent subscribe successful, msg_id=42970
-I (4184) MQTT_EXAMPLE: sent unsubscribe successful, msg_id=50241
-I (4314) MQTT_EXAMPLE: MQTT_EVENT_PUBLISHED, msg_id=41464
-I (4484) MQTT_EXAMPLE: MQTT_EVENT_SUBSCRIBED, msg_id=17886
-I (4484) MQTT_EXAMPLE: sent publish successful, msg_id=0
-I (4684) MQTT_EXAMPLE: MQTT_EVENT_SUBSCRIBED, msg_id=42970
-I (4684) MQTT_EXAMPLE: sent publish successful, msg_id=0
-I (4884) MQTT_CLIENT: deliver_publish, message_length_read=19, message_length=19
-I (4884) MQTT_EXAMPLE: MQTT_EVENT_DATA
-TOPIC=/topic/qos0
-DATA=data
-I (5194) MQTT_CLIENT: deliver_publish, message_length_read=19, message_length=19
-I (5194) MQTT_EXAMPLE: MQTT_EVENT_DATA
-TOPIC=/topic/qos0
-DATA=data
-```
+## 实际效果
+![gif](https://github.com/ekerV5/resources/blob/master/esp32_connect_to_alicloud.gif)
+      
+      
